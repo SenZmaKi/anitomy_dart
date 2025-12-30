@@ -1,8 +1,9 @@
-/// Support for doing something awesome.
+/// Anitomy - Anime filename parser
 ///
-/// More dartdocs go here.
+/// A Dart port of the Anitomy library for parsing anime video filenames.
 library;
 
-export 'src/anitomy_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/anitomy.dart';
+export 'src/element.dart';
+export 'src/options.dart';
+export 'src/token.dart';
