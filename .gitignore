@@ -10,6 +10,3 @@ pubspec.lock
 anitomy_original/test/*.o
 anitomy_original/test/anitomy_test
 anitomy_original/anitomy/
-
-# Dart tests
-test/REPORT.md
