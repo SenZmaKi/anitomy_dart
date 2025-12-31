@@ -9,7 +9,6 @@ pubspec.lock
 # Anitomy original
 anitomy_original/test/*.o
 anitomy_original/test/anitomy_test
-anitomy_original/test/debug_test
 anitomy_original/anitomy/**/*.o
 
 # Dart tests
