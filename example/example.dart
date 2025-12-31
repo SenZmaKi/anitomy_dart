@@ -1,4 +1,4 @@
-import 'package:anitomy/anitomy.dart';
+import 'package:anitomy_dart/anitomy.dart';
 
 void main() {
   final anitomy = Anitomy();

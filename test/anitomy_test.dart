@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:anitomy/anitomy.dart';
+import 'package:anitomy_dart/anitomy.dart';
 import 'package:test/test.dart';
 
 void main() {

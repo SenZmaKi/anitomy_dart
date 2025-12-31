@@ -1,14 +1,10 @@
-name: anitomy
-description: A starting point for Dart libraries or applications.
+name: anitomy_dart
+description: A dart port of anitomy, a C++ library for parsing anime video filenames.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/senzmaki/anitomy_dart
 
 environment:
   sdk: ^3.9.2
-
-# Add regular dependencies here.
-dependencies:
-  # path: ^1.9.0
 
 dev_dependencies:
   lints: ^6.0.0
