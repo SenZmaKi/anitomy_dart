@@ -145,8 +145,8 @@ void main() {
       print('========================================\n');
 
       if (failures.isNotEmpty) {
-        print('First 10 failures:');
-        for (var i = 0; i < failures.length && i < 10; i++) {
+        print('Failures:');
+        for (var i = 0; i < failures.length; i++) {
           final failure = failures[i];
           print('\n${i + 1}. ${failure['filename']}');
           if (failure.containsKey('errors')) {
