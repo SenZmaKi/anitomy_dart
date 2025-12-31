@@ -85,7 +85,7 @@ def run_cpp_tests() -> Tuple[bool, str]:
         return False, f"Error running C++ tests: {str(e)}"
 
 
-def parse_dart_output(output: str) -> TestResult:
+def parse_output(output: str) -> TestResult:
     """Parse Dart test output to extract results."""
     result = TestResult()
 
@@ -122,51 +122,6 @@ def parse_dart_output(output: str) -> TestResult:
             for line in lines[1:]:
                 line = line.strip()
                 if line:
-                    errors.append(line)
-
-            if filename and errors:
-                result.add_failure(filename, errors)
-
-    return result
-
-
-def parse_cpp_output(output: str) -> TestResult:
-    """Parse C++ test output to extract results."""
-    result = TestResult()
-
-    # Extract summary statistics
-    passed_match = re.search(r"Passed:\s*(\d+)", output)
-    failed_match = re.search(r"Failed:\s*(\d+)", output)
-    total_match = re.search(r"Total:\s*(\d+)", output)
-    rate_match = re.search(r"Success Rate:\s*([\d.]+)%", output)
-
-    if passed_match:
-        result.passed = int(passed_match.group(1))
-    if failed_match:
-        result.failed = int(failed_match.group(1))
-    if total_match:
-        result.total = int(total_match.group(1))
-    if rate_match:
-        result.success_rate = float(rate_match.group(1))
-
-    # Parse failures section
-    failures_section = re.search(r"Failures\s*\n(.*)", output, re.DOTALL)
-    if failures_section:
-        failures_text = failures_section.group(1)
-
-        # Split by numbered entries
-        entries = re.split(r"\n\d+\.\s+", failures_text)
-        for entry in entries[1:]:  # Skip the first empty split
-            lines = entry.strip().split("\n")
-            if not lines:
-                continue
-
-            filename = lines[0].strip()
-            errors = []
-
-            for line in lines[1:]:
-                line = line.strip()
-                if line and not line.startswith("make:"):
                     errors.append(line)
 
             if filename and errors:
@@ -323,8 +278,8 @@ def main():
 
     # Parse results
     print("\nParsing test results...")
-    dart_result = parse_dart_output(dart_output)
-    cpp_result = parse_cpp_output(cpp_output)
+    dart_result = parse_output(dart_output)
+    cpp_result = parse_output(cpp_output)
 
     print(
         f"\nDart: {dart_result.passed} passed, {dart_result.failed} failed ({dart_result.success_rate:.2f}%)"
