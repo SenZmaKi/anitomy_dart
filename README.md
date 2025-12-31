@@ -1,6 +1,10 @@
 # Anitomy Dart
 
-A Dart port of anitomy, a C++ library for parsing anime video filenames.
+A Dart port of [anitomy](https://github.com/erengy/anitomy/tree/master), a C++ library for parsing anime video filenames.
+
+## Disclaimer
+
+This project is heavily vibe coded. Porting a C++ library to Dart is a task AI should handle well, since both languages are C style and the transition is from a lower level language to a higher level one. The model used for this port was Claude Sonnet 4.5.
 
 ## Usage
 
@@ -31,17 +35,13 @@ void main() {
 }
 ```
 
-## Vibe Coding
-
-This project was heavily vibe coded. Porting a C++ library to Dart is a task AI tends to handle well, since both languages are C style and the transition is from a lower level language to a higher level one. The AI used for this port was Claude Sonnet 4.5.
-
 ## Tests
 
-The project achieves and surpasses test parity with the original C++ library, with an 87.5% success rate compared to the original’s 80.22%. A detailed test report can be found [here](https://github.com/senzmaki/anitomy_dart/master/test/REPORT.md).
+The project achieves and surpasses test parity with the original C++ library, with an 87.5% success rate compared to the original’s 80.22%. A detailed test report can be found [here](https://github.com/senzmaki/anitomy_dart/blob/main/test/REPORT.md).
 
 ## License
 
-Anitomy Dart is licensed under the MIT License. See the [LICENSE](https://github.com/senzmaki/anitomy_dart/blob/master/LICENSE) file for more information.
+Anitomy Dart is licensed under the MIT License. See the [LICENSE](https://github.com/senzmaki/anitomy_dart/blob/main/LICENSE) file for more information.
 
 ## Contributing
 
