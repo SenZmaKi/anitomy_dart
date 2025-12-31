@@ -7,11 +7,10 @@
 pubspec.lock
 
 # Anitomy original
-anitomy_original/test/cpp_test_results.txt
 anitomy_original/test/*.o
 anitomy_original/test/anitomy_test
 anitomy_original/test/debug_test
 anitomy_original/anitomy/**/*.o
 
 # Dart tests
-test/dart_test_results.txt
+test/REPORT.md
