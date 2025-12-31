@@ -9,7 +9,7 @@ void main() {
 
     setUpAll(() async {
       // Load test data from data.json
-      final file = File('anitomy_original/test/data.json');
+      final file = File('anitomy_original/anitomy/test/data.json');
       final jsonString = await file.readAsString();
       testData = List<Map<String, dynamic>>.from(json.decode(jsonString));
     });
