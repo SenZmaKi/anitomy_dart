@@ -725,11 +725,11 @@ class Parser {
   }
 
   bool _checkAnimeSeasonKeyword(int tokenIndex) {
-    final setAnimeSeason = (int first, int second, String content) {
+    void setAnimeSeason(int first, int second, String content) {
       _elements.insert(ElementCategory.animeSeason, content);
       _tokens[first].category = TokenCategory.identifier;
       _tokens[second].category = TokenCategory.identifier;
-    };
+    }
 
     final previousToken = findPreviousToken(
       _tokens,

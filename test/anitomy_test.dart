@@ -62,9 +62,7 @@ void main() {
             if (actualAll.length != expected.length ||
                 !actualAll.every((e) => expected.contains(e))) {
               testPassed = false;
-              errors.add(
-                'episode_number: expected ${expected}, got ${actualAll}',
-              );
+              errors.add('episode_number: expected $expected, got $actualAll');
             }
           }
         }
