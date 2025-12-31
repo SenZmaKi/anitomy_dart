@@ -375,7 +375,7 @@ int main() {
   }
 
   std::cout << "\n========================================" << std::endl;
-  std::cout << "C++ Test Results:" << std::endl;
+  std::cout << "Test Results:" << std::endl;
   std::cout << "Passed: " << passedTests << std::endl;
   std::cout << "Failed: " << failedTests << std::endl;
   std::cout << "Total: " << (passedTests + failedTests) << std::endl;
@@ -395,7 +395,6 @@ int main() {
         std::cout << "   " << error << std::endl;
       }
     }
-    std::cout << std::endl;
   }
 
   return 0;

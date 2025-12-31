@@ -105,14 +105,20 @@ def parse_output(output: str) -> TestResult:
         result.success_rate = float(rate_match.group(1))
 
     # Parse failures section
-    failures_section = re.search(r"Failures:(.*?)(?=\n\n|$)", output, re.DOTALL)
+    failures_section = re.search(r"Failures:\s*\n(.*)", output, re.DOTALL)
     if failures_section:
         failures_text = failures_section.group(1)
 
-        # Split by numbered entries
-        entries = re.split(r"\n\d+\.\s+", failures_text)
-        for entry in entries[1:]:  # Skip the first empty split
-            lines = entry.strip().split("\n")
+        # Split by numbered entries (e.g., "1. ", "2. ")
+        entries = re.split(r"\n(\d+)\.\s+", failures_text)
+
+        # Process entries in pairs: (number, content)
+        for i in range(1, len(entries), 2):
+            if i + 1 >= len(entries):
+                break
+
+            entry = entries[i + 1].strip()
+            lines = entry.split("\n")
             if not lines:
                 continue
 
@@ -121,7 +127,12 @@ def parse_output(output: str) -> TestResult:
 
             for line in lines[1:]:
                 line = line.strip()
-                if line:
+                # Skip test framework output lines (Dart test output)
+                if (
+                    line
+                    and not line.startswith("00:")
+                    and not line.startswith("[1m[36m")
+                ):
                     errors.append(line)
 
             if filename and errors:
