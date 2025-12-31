@@ -37,8 +37,7 @@ This project was heavily vibe coded. Porting a C++ library to Dart is a task AI 
 
 ## Tests
 
-The project achieves and surpasses test parity with the original C++ library, with an 87.5 percent success rate compared to the original’s 80.22 percent. A detailed test report can be found here:
-[https://github.com/senzmaki/anitomy_dart/blob/master/test/REPORT.md](https://github.com/senzmaki/anitomy_dart/master/main/test/REPORT.md)
+The project achieves and surpasses test parity with the original C++ library, with an 87.5% success rate compared to the original’s 80.22%. A detailed test report can be found [here](https://github.com/senzmaki/anitomy_dart/master/test/REPORT.md).
 
 ## License
 
