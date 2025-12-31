@@ -992,7 +992,7 @@ class Parser {
   }
 
   bool _matchSingleEpisodePattern(String word, int tokenIndex) {
-    final pattern = RegExp(r'(\d{1,4})[vV](\d)');
+    final pattern = RegExp(r'^(\d{1,4})[vV](\d)$');
     final match = pattern.firstMatch(word);
 
     if (match != null) {
@@ -1007,7 +1007,7 @@ class Parser {
   bool _matchMultiEpisodePattern(String word, int tokenIndex) {
     // Match patterns like "01-02", "03-05v2", "01v2-04"
     final pattern = RegExp(
-      r'(\d{1,4})(?:[vV](\d))?[-~&+](\d{1,4})(?:[vV](\d))?',
+      r'^(\d{1,4})(?:[vV](\d))?[-~&+](\d{1,4})(?:[vV](\d))?$',
     );
     final match = pattern.firstMatch(word);
 
@@ -1021,7 +1021,8 @@ class Parser {
           // Version can be after first or second episode number
           if (match.group(2) != null) {
             _elements.insert(ElementCategory.releaseVersion, match.group(2)!);
-          } else if (match.group(4) != null) {
+          }
+          if (match.group(4) != null) {
             _elements.insert(ElementCategory.releaseVersion, match.group(4)!);
           }
           return true;
@@ -1034,7 +1035,7 @@ class Parser {
 
   bool _matchSeasonAndEpisodePattern(String word, int tokenIndex) {
     final pattern = RegExp(
-      r'S?(\d{1,2})(?:-S?(\d{1,2}))?(?:x|[ ._-x]?E)(\d{1,4})(?:-E?(\d{1,4}))?(?:[vV](\d))?',
+      r'^S?(\d{1,2})(?:-S?(\d{1,2}))?(?:x|[ ._-x]?E)(\d{1,4})(?:-E?(\d{1,4}))?(?:[vV](\d))?$',
       caseSensitive: false,
     );
     final match = pattern.firstMatch(word);
@@ -1097,8 +1098,10 @@ class Parser {
   }
 
   bool _matchFractionalEpisodePattern(String word, int tokenIndex) {
-    // Allow common fractional episodes
-    final pattern = RegExp(r'^\d+\.[0-9]$');
+    // We don't allow any fractional part other than ".5", because there are cases
+    // where such a number is a part of the anime title (e.g. "Evangelion: 1.11",
+    // "Tokyo Magnitude 8.0") or a keyword (e.g. "5.1").
+    final pattern = RegExp(r'^\d+\.5$');
 
     if (pattern.hasMatch(word)) {
       if (_setEpisodeNumber(word, tokenIndex, true)) {
@@ -1140,7 +1143,7 @@ class Parser {
   bool _matchNumberSignPattern(String word, int tokenIndex) {
     if (word.isEmpty || word[0] != '#') return false;
 
-    final pattern = RegExp(r'#(\d{1,4})(?:[-~&+](\d{1,4}))?(?:[vV](\d))?');
+    final pattern = RegExp(r'^#(\d{1,4})(?:[-~&+](\d{1,4}))?(?:[vV](\d))?$');
     final match = pattern.firstMatch(word);
 
     if (match != null) {
@@ -1161,7 +1164,7 @@ class Parser {
   bool _matchJapaneseCounterPattern(String word, int tokenIndex) {
     if (word.isEmpty || word[word.length - 1] != '\u8A71') return false;
 
-    final pattern = RegExp(r'(\d{1,4})\u8A71');
+    final pattern = RegExp(r'^(\d{1,4})\u8A71$');
     final match = pattern.firstMatch(word);
 
     if (match != null) {
@@ -1218,7 +1221,7 @@ class Parser {
   }
 
   bool _matchSingleVolumePattern(String word, int tokenIndex) {
-    final pattern = RegExp(r'(\d{1,2})[vV](\d)');
+    final pattern = RegExp(r'^(\d{1,2})[vV](\d)$');
     final match = pattern.firstMatch(word);
 
     if (match != null) {
@@ -1231,7 +1234,7 @@ class Parser {
   }
 
   bool _matchMultiVolumePattern(String word, int tokenIndex) {
-    final pattern = RegExp(r'(\d{1,2})[-~&+](\d{1,2})(?:[vV](\d))?');
+    final pattern = RegExp(r'^(\d{1,2})[-~&+](\d{1,2})(?:[vV](\d))?$');
     final match = pattern.firstMatch(word);
 
     if (match != null) {
