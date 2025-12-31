@@ -177,6 +177,28 @@ class Parser {
       TokenFlags.flagNotEnclosed | TokenFlags.flagUnknown,
     );
 
+    // Skip leading numeric tokens that might be episode numbers
+    while (tokenBegin != -1 &&
+        tokenBegin < _tokens.length &&
+        isNumericString(_tokens[tokenBegin].content)) {
+      final nextToken = findNextToken(
+        _tokens,
+        tokenBegin,
+        TokenFlags.flagNotDelimiter,
+      );
+      // If the next token is a bracket, this number is likely an episode number
+      if (nextToken != -1 &&
+          _tokens[nextToken].category == TokenCategory.bracket) {
+        tokenBegin = findToken(
+          _tokens,
+          tokenBegin + 1,
+          TokenFlags.flagNotEnclosed | TokenFlags.flagUnknown,
+        );
+      } else {
+        break;
+      }
+    }
+
     // If that doesn't work, find the first unknown token in the second enclosed
     // group, assuming that the first one is the release group
     if (tokenBegin == -1) {
@@ -272,7 +294,7 @@ class Parser {
         tokenEnd,
         TokenFlags.flagEnclosed | TokenFlags.flagUnknown,
       );
-      if (tokenBegin == -1) return;
+      if (tokenBegin == -1) break;
 
       // Continue until a bracket or identifier is found
       tokenEnd = findToken(
@@ -301,6 +323,89 @@ class Parser {
       // Build release group
       _buildElement(ElementCategory.releaseGroup, true, tokenBegin, tokenEnd);
       return;
+    }
+
+    // If no enclosed group found, look for release group in parentheses
+    // after the anime title (e.g., "Anime Title (ReleaseGroup)")
+    if (_elements.emptyCategory(ElementCategory.releaseGroup) &&
+        !_elements.emptyCategory(ElementCategory.animeTitle)) {
+      _searchForReleaseGroupInParentheses();
+    }
+
+    // Also look for release group after hyphen at the end (e.g., "-ank")
+    if (_elements.emptyCategory(ElementCategory.releaseGroup)) {
+      _searchForReleaseGroupAfterHyphen();
+    }
+  }
+
+  void _searchForReleaseGroupAfterHyphen() {
+    // Look for pattern like ")-groupname" at the end
+    for (var i = _tokens.length - 1; i >= 0; i--) {
+      if (_tokens[i].category == TokenCategory.unknown &&
+          !_tokens[i].enclosed) {
+        // Check if previous token is hyphen
+        final prevToken = findPreviousToken(
+          _tokens,
+          i,
+          TokenFlags.flagNotDelimiter,
+        );
+        if (prevToken != -1) {
+          if (_tokens[prevToken].category == TokenCategory.unknown &&
+              _isDashCharacter(_tokens[prevToken].content)) {
+            // Check if token before hyphen is closing bracket
+            final prevPrevToken = findPreviousToken(
+              _tokens,
+              prevToken,
+              TokenFlags.flagNotDelimiter,
+            );
+            if (prevPrevToken != -1 &&
+                _tokens[prevPrevToken].category == TokenCategory.bracket &&
+                (_tokens[prevPrevToken].content == ')' ||
+                    _tokens[prevPrevToken].content == ']')) {
+              _buildElement(ElementCategory.releaseGroup, true, i, i + 1);
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void _searchForReleaseGroupInParentheses() {
+    for (var i = 0; i < _tokens.length; i++) {
+      if (_tokens[i].category != TokenCategory.bracket ||
+          _tokens[i].content != '(') {
+        continue;
+      }
+
+      // Check if there's an unknown token right after the opening parenthesis
+      final nextToken = findNextToken(_tokens, i, TokenFlags.flagNotDelimiter);
+      if (nextToken == -1 ||
+          _tokens[nextToken].category != TokenCategory.unknown) {
+        continue;
+      }
+
+      // Find the closing bracket
+      final closingBracket = findNextToken(
+        _tokens,
+        nextToken,
+        TokenFlags.flagBracket,
+      );
+      if (closingBracket == -1 || _tokens[closingBracket].content != ')') {
+        continue;
+      }
+
+      // Check if this looks like a release group (not a video resolution or other metadata)
+      final content = _tokens[nextToken].content;
+      if (!isNumericString(content) && !_isResolution(content)) {
+        _buildElement(
+          ElementCategory.releaseGroup,
+          true,
+          nextToken,
+          closingBracket,
+        );
+        return;
+      }
     }
   }
 
@@ -481,7 +586,12 @@ class Parser {
           _tokens[i].category = TokenCategory.identifier;
           break;
         case TokenCategory.bracket:
-          element.write(token.content);
+          // For release groups, keep opening bracket if it's at the beginning
+          if (category == ElementCategory.releaseGroup) {
+            element.write(token.content);
+          } else {
+            element.write(token.content);
+          }
           break;
         case TokenCategory.delimiter:
           final delimiter = token.content[0];
@@ -511,7 +621,16 @@ class Parser {
 
     // Trim brackets from release group names
     if (category == ElementCategory.releaseGroup) {
-      result = trimString(result, ' []{}()');
+      // Only remove outer brackets if they're square brackets []
+      // Keep parentheses intact as they might be part of the release group name
+      while (result.startsWith('[')) {
+        result = result.substring(1);
+      }
+      while (result.endsWith(']')) {
+        result = result.substring(0, result.length - 1);
+      }
+      // Trim trailing commas and spaces
+      result = trimString(result, ' ,');
     }
 
     if (result.isNotEmpty) {
@@ -586,10 +705,13 @@ class Parser {
         return true;
       }
 
-      // *###p
+      // *###p or *###i
     } else if (str.length >= minHeightSize + 1) {
       final lastChar = str[str.length - 1];
-      if (lastChar == 'p' || lastChar == 'P') {
+      if (lastChar == 'p' ||
+          lastChar == 'P' ||
+          lastChar == 'i' ||
+          lastChar == 'I') {
         for (var i = 0; i < str.length - 1; i++) {
           if (!isNumericChar(str[i])) {
             return false;
@@ -883,6 +1005,7 @@ class Parser {
   }
 
   bool _matchMultiEpisodePattern(String word, int tokenIndex) {
+    // Match patterns like "01-02", "03-05v2", "01v2-04"
     final pattern = RegExp(
       r'(\d{1,4})(?:[vV](\d))?[-~&+](\d{1,4})(?:[vV](\d))?',
     );
@@ -895,10 +1018,10 @@ class Parser {
       if (stringToInt(lowerBound) < stringToInt(upperBound)) {
         if (_setEpisodeNumber(lowerBound, tokenIndex, true)) {
           _setEpisodeNumber(upperBound, tokenIndex, false);
+          // Version can be after first or second episode number
           if (match.group(2) != null) {
             _elements.insert(ElementCategory.releaseVersion, match.group(2)!);
-          }
-          if (match.group(4) != null) {
+          } else if (match.group(4) != null) {
             _elements.insert(ElementCategory.releaseVersion, match.group(4)!);
           }
           return true;
@@ -974,8 +1097,8 @@ class Parser {
   }
 
   bool _matchFractionalEpisodePattern(String word, int tokenIndex) {
-    // We don't allow any fractional part other than ".5"
-    final pattern = RegExp(r'\d+\.5');
+    // Allow common fractional episodes
+    final pattern = RegExp(r'^\d+\.[0-9]$');
 
     if (pattern.hasMatch(word)) {
       if (_setEpisodeNumber(word, tokenIndex, true)) {
@@ -1210,12 +1333,29 @@ class Parser {
         TokenFlags.flagNotDelimiter,
       );
 
-      // See if the number has a preceding "-" separator
-      if (_checkTokenCategory(previousToken, TokenCategory.unknown) &&
-          _isDashCharacter(_tokens[previousToken].content)) {
-        if (_setEpisodeNumber(_tokens[tokenIndex].content, tokenIndex, true)) {
-          _tokens[previousToken].category = TokenCategory.identifier;
-          return true;
+      // See if the number has a preceding "-" or "." separator
+      if (_checkTokenCategory(previousToken, TokenCategory.unknown)) {
+        if (_isDashCharacter(_tokens[previousToken].content)) {
+          if (_setEpisodeNumber(
+            _tokens[tokenIndex].content,
+            tokenIndex,
+            true,
+          )) {
+            _tokens[previousToken].category = TokenCategory.identifier;
+            return true;
+          }
+        }
+      } else if (_checkTokenCategory(previousToken, TokenCategory.delimiter)) {
+        // Check for dot separator (e.g., "[Title].148")
+        final delimiter = _tokens[previousToken].content;
+        if (delimiter == '.') {
+          if (_setEpisodeNumber(
+            _tokens[tokenIndex].content,
+            tokenIndex,
+            true,
+          )) {
+            return true;
+          }
         }
       }
     }

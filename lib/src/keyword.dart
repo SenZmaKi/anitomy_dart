@@ -80,6 +80,9 @@ class KeywordManager {
       '5.1CH',
       '7.1',
       '7.1CH',
+      'DD2.0',
+      'DD5.1',
+      'DD',
       'DTS',
       'DTS-ES',
       'DTS5.1',
@@ -373,12 +376,13 @@ class KeywordManager {
     List<TokenRange> preidentifiedTokens,
   ) {
     final entries = <MapEntry<ElementCategory, List<String>>>[
-      MapEntry(ElementCategory.audioTerm, ['Dual Audio']),
+      MapEntry(ElementCategory.audioTerm, ['Dual Audio', 'DualAudio']),
       MapEntry(ElementCategory.videoTerm, ['H264', 'H.264', 'h264', 'h.264']),
       MapEntry(ElementCategory.videoResolution, [
         '480p',
         '720p',
         '1080p',
+        '1080i',
         '2160p',
       ]),
       MapEntry(ElementCategory.source, ['Blu-Ray']),
