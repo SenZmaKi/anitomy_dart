@@ -14,6 +14,7 @@ dependencies:
   anitomy_dart:
     git:
       url: https://github.com/SenZmaKi/anitomy_dart
+      ref: main # or specify a commit/tag
 ```
 
 ## Usage
