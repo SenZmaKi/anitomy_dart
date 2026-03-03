@@ -6,6 +6,16 @@ A Dart port of [anitomy](https://github.com/erengy/anitomy/tree/master), a C++ l
 
 This project is heavily vibe coded. Porting a C++ library to Dart is a task AI should handle well, since both languages are C style and the transition is from a lower level language to a higher level one. The model used for this port was Claude Sonnet 4.5.
 
+## Installation
+
+Add this to your `pubspec.yaml`
+```yaml
+dependencies:
+  anitomy_dart:
+    git:
+      url: https://github.com/SenZmaKi/anitomy_dart
+```
+
 ## Usage
 
 ```dart
