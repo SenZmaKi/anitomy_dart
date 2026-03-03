@@ -16,6 +16,11 @@ dependencies:
       url: https://github.com/SenZmaKi/anitomy_dart
       ref: main # or specify a commit/tag
 ```
+Then run:
+
+```bash
+flutter pub get
+```
 
 ## Usage
 
